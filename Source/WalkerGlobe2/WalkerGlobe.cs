@@ -198,6 +198,7 @@ namespace WalkerGlobe2
             }
             _gsoArc = new PolylineShape2(gsoArc, _context, globeShape,
                 new ShapefileAppearance { PolylineColor = Color.Yellow, PolylineOutlineColor = Color.DarkGoldenrod, PolylineWidth = 1, PolylineOutlineWidth = 1 });
+            _starField = new StarFieldRenderer(_context);
             Log("GSO arc + rest");
             UpdateHUD();
         }
@@ -249,7 +250,7 @@ namespace WalkerGlobe2
             }
         }
 
-        public void AddGroundStationMarkers(Vector3D[] points, string key, Color color, float[] scales = null, bool ecef = true)
+        public void AddGroundStationMarkers(Vector3D[] points, string key, Color color, float[] scales = null, float alpha = 0.5f, bool ecef = true)
         {
             lock (renderQueue)
             {
@@ -260,7 +261,8 @@ namespace WalkerGlobe2
 
                     var markers = new GroundStationMarkerRenderer(points, _context, scales)
                     {
-                        Color = color
+                        Color = color,
+                        Alpha = alpha
                     };
                     if (_mutuableshapes.ContainsKey(key))
                         _mutuableshapes[key] = markers;
@@ -599,6 +601,19 @@ namespace WalkerGlobe2
             Context context = _context;
             context.Clear(_clearState);
 
+            // Stars: render first as background (no depth write, no depth test)
+            // Center star sphere on camera eye so it never becomes visible as a shell
+            if (_showStars)
+            {
+                var eye = _sceneState.Camera.Eye;
+                _sceneState.ModelMatrix = new Matrix4D(
+                    1, 0, 0, eye.X,
+                    0, 1, 0, eye.Y,
+                    0, 0, 1, eye.Z,
+                    0, 0, 0, 1);
+                _starField.Render(context, _sceneState);
+            }
+
             // ECEF objects: globe, grid, shapefiles, ground stations — all rotate with Earth
             _sceneState.ModelMatrix = Matrix4D.RotationMatrixZ((float)_sceneState.CBRotationAngleRad);
             _globe.Render(context, _sceneState);
@@ -653,6 +668,7 @@ namespace WalkerGlobe2
                 ((IDisposable)shape).Dispose();
             }
 
+            _starField.Dispose();
             _gsoArc.Dispose();
             _doneQueue.Dispose();
             _requestQueue.Dispose();
@@ -707,7 +723,10 @@ namespace WalkerGlobe2
         public bool ShowDayNight { get => _globe.ShowDayNight; set => _globe.ShowDayNight = value; }
         private bool _showAtmosphere;
         public bool ShowAtmosphere { get => _showAtmosphere; set => _showAtmosphere = value; }
+        private bool _showStars = true;
+        public bool ShowStars { get => _showStars; set => _showStars = value; }
         private readonly PolylineShape2 _gsoArc;
+        private readonly StarFieldRenderer _starField;
 
         private readonly IList<IRenderable> _shapefiles = new List<IRenderable>();
         private readonly Dictionary<string, IRenderable> _mutuableshapes = new Dictionary<string, IRenderable>();

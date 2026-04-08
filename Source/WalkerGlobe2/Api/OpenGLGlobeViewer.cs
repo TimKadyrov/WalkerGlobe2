@@ -40,13 +40,13 @@ namespace WalkerGlobe2.Api
             _globe.AddSatelliteMarkers(positionsM, "satellites", _satColor, scales, highlighted);
         }
 
-        public void UpdateGroundStations(string key, Vector3D[] positionsKm, Color color, float[] scales = null)
+        public void UpdateGroundStations(string key, Vector3D[] positionsKm, Color color, float[] scales = null, float alpha = 0.5f)
         {
             var positionsM = new Vector3D[positionsKm.Length];
             for (int i = 0; i < positionsKm.Length; i++)
                 positionsM[i] = positionsKm[i] * 1000.0;
 
-            _globe.AddGroundStationMarkers(positionsM, key, color, scales);
+            _globe.AddGroundStationMarkers(positionsM, key, color, scales, alpha);
         }
 
         public void SetGroundPolyline(string key, Vector2D[] latLonRad, Color color)

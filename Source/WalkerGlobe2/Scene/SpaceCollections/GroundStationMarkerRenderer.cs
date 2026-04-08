@@ -190,6 +190,12 @@ namespace WalkerGlobe2.Scene
             set => _color = value;
         }
 
+        public float Alpha
+        {
+            get => _alphaUniform.Value;
+            set => _alphaUniform.Value = value;
+        }
+
         public void Dispose()
         {
             _va?.Dispose();

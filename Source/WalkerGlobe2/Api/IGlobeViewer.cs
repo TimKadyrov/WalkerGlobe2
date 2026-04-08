@@ -24,7 +24,7 @@ namespace WalkerGlobe2.Api
         void SetGroundPolygons(string key, Vector2D[][] latLonRad, Color lineColor, Color fillColor);
 
         /// <summary>Add/update ground station markers (ECEF, km). Rotates with Earth.</summary>
-        void UpdateGroundStations(string key, Vector3D[] positionsKm, Color color, float[] scales = null);
+        void UpdateGroundStations(string key, Vector3D[] positionsKm, Color color, float[] scales = null, float alpha = 0.5f);
 
         /// <summary>Add/update an ECI polyline (e.g. orbit trace). Positions in km.</summary>
         void SetSpacePolyline(string key, Vector3D[] positionsKm, Color color);

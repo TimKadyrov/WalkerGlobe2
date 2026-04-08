@@ -316,13 +316,13 @@ namespace WalkerGlobe2.Api
         }
 
         public void UpdateGroundStations(string key, Vector3D[] positionsKm, System.Drawing.Color color,
-            float[] scales = null, bool ecef = true)
+            float[] scales = null, float alpha = 0.5f, bool ecef = true)
         {
             if (!_initialized) return;
             var positionsM = new Vector3D[positionsKm.Length];
             for (int i = 0; i < positionsKm.Length; i++)
                 positionsM[i] = positionsKm[i] * 1000.0;
-            _globe.AddGroundStationMarkers(positionsM, key, color, scales, ecef);
+            _globe.AddGroundStationMarkers(positionsM, key, color, scales, alpha, ecef);
         }
 
         public void SetSpacePolyline(string key, Vector3D[] positionsKm, System.Drawing.Color color, bool ecef = true)
