@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <AssemblyName>WalkerGlobe2</AssemblyName>
+    <RootNamespace>WalkerGlobe2</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="OpenTK.Graphics" Version="4.9.4" />
+    <PackageReference Include="OpenTK.Mathematics" Version="4.9.4" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="**\*.glsl" />
+    <EmbeddedResource Include="Px437_ToshibaLCD_8x16.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\*.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

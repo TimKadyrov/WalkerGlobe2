@@ -1,0 +1,192 @@
+﻿#region License
+//
+// (C) Copyright 2010 Patrick Cozzi and Deron Ohlarik
+//
+// Distributed under the MIT License.
+// See License.txt or http://www.opensource.org/licenses/mit-license.php.
+//
+#endregion
+
+using System;
+using System.Drawing;
+using WalkerGlobe2.Core;
+using WalkerGlobe2.Renderer;
+using Half = WalkerGlobe2.Core.Half;
+
+namespace WalkerGlobe2.Scene
+{
+    public sealed class HeadsUpDisplay : IDisposable
+    {
+        public HeadsUpDisplay(bool crtEffect)
+        {
+            RenderState renderState = new RenderState();
+            renderState.FacetCulling.Enabled = false;
+            renderState.DepthTest.Enabled = false;
+            renderState.Blending.Enabled = true;
+            renderState.Blending.SourceRGBFactor = SourceBlendingFactor.SourceAlpha;
+            renderState.Blending.SourceAlphaFactor = SourceBlendingFactor.SourceAlpha;
+            renderState.Blending.DestinationRGBFactor = DestinationBlendingFactor.OneMinusSourceAlpha;
+            renderState.Blending.DestinationAlphaFactor = DestinationBlendingFactor.OneMinusSourceAlpha;
+            ShaderProgram sp;
+            if (crtEffect)
+            {
+                sp = Device.CreateShaderProgram(
+                EmbeddedResources.GetText("WalkerGlobe.Scene.Renderables.HeadsUpDisplay.Shaders.HeadsUpDisplayVS.glsl"),
+                EmbeddedResources.GetText("WalkerGlobe.Scene.Renderables.HeadsUpDisplay.Shaders.HeadsUpDisplayGS.glsl"),
+                EmbeddedResources.GetText("WalkerGlobe.Scene.Renderables.HeadsUpDisplay.Shaders.HeadsUpDisplayFS_crt.glsl"));
+                _colorUniform = null;
+            }
+            else
+            {
+                sp = Device.CreateShaderProgram(
+                EmbeddedResources.GetText("WalkerGlobe.Scene.Renderables.HeadsUpDisplay.Shaders.HeadsUpDisplayVS.glsl"),
+                EmbeddedResources.GetText("WalkerGlobe.Scene.Renderables.HeadsUpDisplay.Shaders.HeadsUpDisplayGS.glsl"),
+                EmbeddedResources.GetText("WalkerGlobe.Scene.Renderables.HeadsUpDisplay.Shaders.HeadsUpDisplayFS_flat.glsl"));
+                _colorUniform = null;
+                _colorUniform = (Uniform<Vector3F>)sp.Uniforms["u_color"];
+            }
+
+            _originScaleUniform = (Uniform<Vector2F>)sp.Uniforms["u_originScale"];
+
+            _drawState = new DrawState(renderState, sp, null);
+
+            Color = Color.White;
+            HorizontalOrigin = HorizontalOrigin.Left;
+            VerticalOrigin = VerticalOrigin.Bottom;
+            _positionDirty = true;
+        }
+
+        private void CreateVertexArray(Context context)
+        {
+            // TODO:  Buffer hint.
+            _positionBuffer = Device.CreateVertexBuffer(BufferHint.StaticDraw, SizeInBytes<Vector2F>.Value);
+
+            VertexBufferAttribute positionAttribute = new VertexBufferAttribute(
+                _positionBuffer, ComponentDatatype.Float, 2);
+
+            _drawState.VertexArray = context.CreateVertexArray();
+            _drawState.VertexArray.Attributes[_drawState.ShaderProgram.VertexAttributes["position"].Location] = positionAttribute;
+         }
+
+        private void Update(Context context)
+        {
+            if (_positionDirty)
+            {
+                DisposeVertexArray();
+                CreateVertexArray(context);
+
+                Vector2F[] positions = new Vector2F[] { _position.ToVector2F() };
+                _positionBuffer.CopyFromSystemMemory(positions);
+
+                _positionDirty = false;
+            }
+        }
+
+        public void Render(Context context, SceneState sceneState)
+        {
+            Verify.ThrowIfNull(context);
+            if (Texture == null) return;
+            //Verify.ThrowInvalidOperationIfNull(Texture, "Texture");
+
+            Update(context);
+
+            if (_drawState.VertexArray != null)
+            {
+                context.TextureUnits[0].Texture = Texture;
+                context.TextureUnits[0].TextureSampler = Device.TextureSamplers.LinearClamp;
+                context.Draw(OpenTK.Graphics.OpenGL.PrimitiveType.Points, _drawState, sceneState);
+            }
+        }
+
+        public Texture2D Texture { get; set; }
+
+        public Color Color
+        {
+            get { return _color; }
+
+            set
+            {
+                _color = value;
+                if (_colorUniform!=null)
+                    _colorUniform.Value = new Vector3F(_color.R / 255.0f, _color.G / 255.0f, _color.B / 255.0f);
+            }
+        }
+
+        public HorizontalOrigin HorizontalOrigin
+        {
+            get { return _horizontalOrigin; }
+            set
+            {
+                _horizontalOrigin = value;
+                _originScaleUniform.Value = new Vector2F(
+                    _originScale[(int)value],
+                    _originScaleUniform.Value.Y);
+            }
+        }
+
+        public VerticalOrigin VerticalOrigin
+        {
+            get { return _verticalOrigin; }
+            set
+            {
+                _verticalOrigin = value;
+                _originScaleUniform.Value = new Vector2F(
+                    _originScaleUniform.Value.X,
+                    _originScale[(int)value]);
+            }
+        }
+
+        public Vector2D Position
+        {
+            get { return _position; }
+
+            set
+            {
+                if (_position != value)
+                {
+                    _position = value;
+                    _positionDirty = true;
+                }
+            }
+        }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            _drawState.ShaderProgram.Dispose();
+            DisposeVertexArray();
+        }
+
+        #endregion
+
+        private void DisposeVertexArray()
+        {
+            if (_positionBuffer != null)
+            {
+                _positionBuffer.Dispose();
+                _positionBuffer = null;
+            }
+
+            if (_drawState.VertexArray != null)
+            {
+                _drawState.VertexArray.Dispose();
+                _drawState.VertexArray = null;
+            }
+        }
+
+        private readonly DrawState _drawState;
+        private readonly Uniform<Vector3F> _colorUniform;
+        private readonly Uniform<Vector2F> _originScaleUniform;
+        private Color _color;
+
+        private Vector2D _position;
+        private bool _positionDirty;
+        private HorizontalOrigin _horizontalOrigin;
+        private VerticalOrigin _verticalOrigin;
+
+        private VertexBuffer _positionBuffer;
+
+        private static readonly Half[] _originScale = new Half[] { new Half(0.0), new Half(1.0), new Half(-1.0) };
+    }
+}
