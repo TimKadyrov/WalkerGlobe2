@@ -365,6 +365,18 @@ namespace WalkerGlobe2.Api
             set { if (_initialized) _globe.ShowAtmosphere = value; }
         }
 
+        public bool ShowGsoArc
+        {
+            get => _globe?.ShowGsoArc ?? true;
+            set { if (_initialized) _globe.ShowGsoArc = value; }
+        }
+
+        public CoverageDisplayMode CoverageRenderMode
+        {
+            get => _globe?.CoverageRenderMode ?? CoverageDisplayMode.FilledCone;
+            set { if (_initialized) _globe.CoverageRenderMode = value; }
+        }
+
         public WalkerGlobe2.WalkerGlobe Globe => _globe;
 
         public WalkerGlobe2.Renderer.SceneState SceneState => _globe?.SceneState;

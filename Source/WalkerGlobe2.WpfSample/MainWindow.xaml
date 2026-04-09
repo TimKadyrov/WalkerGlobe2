@@ -33,6 +33,7 @@
                 <CheckBox x:Name="chkLinks" Content="Show Link Lines" Foreground="White" IsChecked="True" Checked="OnLinksToggle" Unchecked="OnLinksToggle" Margin="0,4"/>
                 <CheckBox x:Name="chkDayNight" Content="Day/Night Globe" Foreground="White" IsChecked="False" Checked="OnDayNightToggle" Unchecked="OnDayNightToggle" Margin="0,4"/>
                 <CheckBox x:Name="chkAtmosphere" Content="Atmosphere" Foreground="White" IsChecked="False" Checked="OnAtmosphereToggle" Unchecked="OnAtmosphereToggle" Margin="0,4"/>
+                <CheckBox x:Name="chkCones" Content="Coverage Cones" Foreground="White" IsChecked="False" Checked="OnConesToggle" Unchecked="OnConesToggle" Margin="0,4"/>
 
                 <Separator Margin="0,8"/>
 

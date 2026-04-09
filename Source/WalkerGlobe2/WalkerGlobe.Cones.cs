@@ -24,7 +24,7 @@ namespace WalkerGlobe2
         public void AddCoverageCones(List<Vector3D> positions, List<Vector2D> targets, List<double> sat_height,
             double elevation, Color line, Color fill)
         {
-            if (_coneType == VisConeType.HollowCone)
+            if (_coneType == CoverageDisplayMode.FilledCone)
             {
                 lock (renderQueue)
                 {
@@ -36,7 +36,7 @@ namespace WalkerGlobe2
                 }
             }
 
-            if (_coneType == VisConeType.OutlinedCone)
+            if (_coneType == CoverageDisplayMode.OutlinedCone)
             {
                 lock (renderQueue)
                 {
@@ -53,7 +53,7 @@ namespace WalkerGlobe2
         public void AddCoverageCones(Vector3D[] positions, Vector2D[] targets, double[] sat_height, double elevation,
             Color line, Color fill)
         {
-            if (_coneType == VisConeType.HollowCone)
+            if (_coneType == CoverageDisplayMode.FilledCone)
                 lock (renderQueue)
                 {
                     renderQueue.Enqueue(() =>
@@ -62,7 +62,7 @@ namespace WalkerGlobe2
                     });
                 }
 
-            if (_coneType == VisConeType.OutlinedCone)
+            if (_coneType == CoverageDisplayMode.OutlinedCone)
                 lock (renderQueue)
                 {
                     renderQueue.Enqueue(() =>
@@ -90,7 +90,7 @@ namespace WalkerGlobe2
                         out height[i]);
                 }
 
-                var cone = new Cone2(_window.Context, positions, target, height, radius, 72)
+                var cone = new Cone2(_context, positions, target, height, radius, 72)
                 {
                     FillColor = fill,
                     FillTranslucency = 0.9f
@@ -121,7 +121,7 @@ namespace WalkerGlobe2
                     _cones = new List<Cone>();
                     for (int i = 0; i < cnt; i++)
                     {
-                        var cone = new Cone(_window.Context, 72)
+                        var cone = new Cone(_context, 72)
                         {
                             FillColor = fill,
                             OutlineColor = line,
@@ -144,7 +144,7 @@ namespace WalkerGlobe2
         {
             trg = _globe.Shape.ToVector3D(new Geodetic3D(target.X, target.Y)).RotateAroundAxis(Vector3D.UnitZ, _sceneState.CBRotationAngleRad);
             trg = _globe.Shape.GeodeticSurfaceNormal(trg);
-            var radAt = _globe.Shape.RadiusAt(target.Y);
+            const double radAt = 6378.145e3; // ITU-R S.1503 Earth radius (meters)
 
             double r, theta, c, si, temp;
             /* coverage_angle is global variable (in rad) */
@@ -160,10 +160,26 @@ namespace WalkerGlobe2
             hght = hght * radAt;
         }
 
-        public VisConeType CoverageRenderMode
+        public void ClearCoverageCones()
+        {
+            lock (renderQueue)
+            {
+                renderQueue.Enqueue(() =>
+                {
+                    lock (_cones)
+                    {
+                        _cones = new List<Cone>();
+                        _cones2 = new List<Cone2>();
+                    }
+                });
+            }
+        }
+
+        public CoverageDisplayMode CoverageRenderMode
         {
             get { return _coneType; }
+            set { _coneType = value; }
         }
     }
-    public enum VisConeType { NoDisplay=0, PreciseGround=1, OutlinedCone=2, HollowCone=3};
+    public enum CoverageDisplayMode { None=0, SuppliedGroundFootprint=1, OutlinedCone=2, FilledCone=3};
 }

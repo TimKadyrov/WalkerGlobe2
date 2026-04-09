@@ -185,7 +185,7 @@ namespace WalkerGlobe2
             AddPolygonShapeCollection(new List<Vector2D[]>() { sh }, "shape", Color.LightBlue, Color.DarkBlue);*/
             _cones = new List<Cone>();
             _cones2 = new List<Cone2>();
-            _coneType = VisConeType.HollowCone;
+            _coneType = CoverageDisplayMode.FilledCone;
 
             // GSO arc: ring at GEO altitude in equatorial plane (ECI)
             const double gsoRadius = 42164.0 * 1000.0; // 6378.137 + 35786 km in meters
@@ -363,7 +363,7 @@ namespace WalkerGlobe2
                 renderQueue.Enqueue(() =>
                 {
                     // AddPolygonShapeCollection
-                    if (displayFootprint && CoverageRenderMode == VisConeType.PreciseGround)
+                    if (displayFootprint && CoverageRenderMode == CoverageDisplayMode.SuppliedGroundFootprint)
                     {
                         var line = System.Drawing.Color.LightBlue;
                         var outLine = System.Drawing.Color.Blue;
@@ -378,14 +378,14 @@ namespace WalkerGlobe2
                     }
 
                     //AddCoverageCones
-                    if (CoverageRenderMode == VisConeType.OutlinedCone || CoverageRenderMode == VisConeType.HollowCone)
+                    if (CoverageRenderMode == CoverageDisplayMode.OutlinedCone || CoverageRenderMode == CoverageDisplayMode.FilledCone)
                     {
                         var line = System.Drawing.Color.Gray;
                         var fill = System.Drawing.Color.LightBlue;
 
-                        if (_coneType == VisConeType.HollowCone)
+                        if (_coneType == CoverageDisplayMode.FilledCone)
                             AddHollowConeToQueue(sat_points, coord, satheight, elev_angle, fill);
-                        if (_coneType == VisConeType.OutlinedCone)
+                        if (_coneType == CoverageDisplayMode.OutlinedCone)
                             AddOutlinedConesToQueue(sat_points, coord, satheight, elev_angle, line, fill);
                     }
 
@@ -497,7 +497,7 @@ namespace WalkerGlobe2
                 {
                     renderQueue.Enqueue(() =>
                     {
-                        _coneType = (VisConeType)((((int)_coneType) + 1) % 4);
+                        _coneType = (CoverageDisplayMode)((((int)_coneType) + 1) % 4);
                     });
                 }
             }
@@ -626,22 +626,23 @@ namespace WalkerGlobe2
             foreach (var shape in _mutuableshapes)
             {
                 if (!_ecefKeys.Contains(shape.Key)) continue;
-                if (shape.Key.Equals("groundCoverage") && _coneType != VisConeType.PreciseGround) continue;
+                if (shape.Key.Equals("groundCoverage") && _coneType != CoverageDisplayMode.SuppliedGroundFootprint) continue;
                 shape.Value.Render(context, _sceneState);
             }
 
             // ECI objects: GSO arc, satellites, cones, non-ECEF mutable shapes
             _sceneState.ModelMatrix = Matrix4D.Identity;
-            _gsoArc.Render(context, _sceneState);
+            if (_showGsoArc)
+                _gsoArc.Render(context, _sceneState);
             foreach (var shape in _mutuableshapes)
             {
                 if (_ecefKeys.Contains(shape.Key)) continue;
                 shape.Value.Render(context, _sceneState);
             }
-            if (_coneType == VisConeType.OutlinedCone)
+            if (_coneType == CoverageDisplayMode.OutlinedCone)
                 foreach (var cone in _cones)
                     cone.Render(context, _sceneState);
-            if (_coneType == VisConeType.HollowCone)
+            if (_coneType == CoverageDisplayMode.FilledCone)
                 foreach (var cone in _cones2)
                     cone.Render(context, _sceneState);
 
@@ -725,6 +726,8 @@ namespace WalkerGlobe2
         public bool ShowAtmosphere { get => _showAtmosphere; set => _showAtmosphere = value; }
         private bool _showStars = true;
         public bool ShowStars { get => _showStars; set => _showStars = value; }
+        private bool _showGsoArc = true;
+        public bool ShowGsoArc { get => _showGsoArc; set => _showGsoArc = value; }
         private readonly PolylineShape2 _gsoArc;
         private readonly StarFieldRenderer _starField;
 
@@ -752,7 +755,7 @@ namespace WalkerGlobe2
         private bool _hudEnabled;
 
 
-        private VisConeType _coneType;
+        private CoverageDisplayMode _coneType;
 
         private static string FindNightTexture(string dayTexturePath)
         {

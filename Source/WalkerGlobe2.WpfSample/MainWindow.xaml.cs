@@ -148,6 +148,11 @@ namespace WalkerGlobe2.WpfSample
             if (chkLinks.IsChecked == true)
                 BuildLinkLines();
 
+            if (chkCones.IsChecked == true)
+                BuildCoverageCones();
+            else
+                globeControl.Globe?.ClearCoverageCones();
+
             globeControl.ShowGrid = chkGrid.IsChecked == true;
         }
 
@@ -188,6 +193,36 @@ namespace WalkerGlobe2.WpfSample
                 var pts = new Vector3D[] { _satPositions[i], esEci[nearest] };
                 globeControl.SetSpacePolyline(key, pts, System.Drawing.Color.Yellow, ecef: false);
             }
+        }
+
+        private void BuildCoverageCones()
+        {
+            if (globeControl.Globe == null) return;
+
+            int count = _satPositions.Length;
+            var positionsM = new Vector3D[count];
+            var targets = new Vector2D[count];
+            var heights = new double[count];
+            const double elevationDeg = 0.0; // minimum elevation angle
+
+            for (int i = 0; i < count; i++)
+            {
+                // Positions: km -> meters
+                positionsM[i] = _satPositions[i] * 1000.0;
+
+                // Sub-satellite point: ECI position -> ECEF lat/lon (radians)
+                // Subtract Earth rotation to convert ECI longitude to ECEF
+                double x = _satPositions[i].X, y = _satPositions[i].Y, z = _satPositions[i].Z;
+                double earthRotation = (_timeSeconds % SolarDay) / SolarDay * 2.0 * Math.PI;
+                double lon = Math.Atan2(y, x) - earthRotation;
+                double lat = Math.Atan2(z, Math.Sqrt(x * x + y * y));
+                targets[i] = new Vector2D(lon, lat);
+
+                heights[i] = OrbitR * 1000.0; // orbital radius (km -> meters)
+            }
+
+            globeControl.Globe.AddCoverageCones(positionsM, targets, heights,
+                elevationDeg, System.Drawing.Color.Gray, System.Drawing.Color.LightBlue);
         }
 
         /// <summary>
@@ -272,6 +307,15 @@ namespace WalkerGlobe2.WpfSample
         {
             if (globeControl != null)
                 globeControl.ShowAtmosphere = chkAtmosphere.IsChecked == true;
+        }
+
+        private void OnConesToggle(object sender, RoutedEventArgs e)
+        {
+            if (globeControl == null) return;
+            globeControl.CoverageRenderMode = chkCones.IsChecked == true
+                ? WalkerGlobe2.CoverageDisplayMode.FilledCone
+                : WalkerGlobe2.CoverageDisplayMode.None;
+            UpdateScene();
         }
 
         private void OnSatScaleChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

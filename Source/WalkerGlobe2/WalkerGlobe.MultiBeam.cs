@@ -57,7 +57,7 @@ namespace WalkerGlobe2
                             GetConeSize(elevation, targets[i], sat_height[i], out target[i], out radius[i], out height[i]);
                         }
 
-                        var cone = new Cone2(_window.Context, new Vector3D[] { position }, target, height, radius, 72)
+                        var cone = new Cone2(_context, new Vector3D[] { position }, target, height, radius, 72)
                         {
                             FillColor = fill[0],
                             FillTranslucency = 0.9f

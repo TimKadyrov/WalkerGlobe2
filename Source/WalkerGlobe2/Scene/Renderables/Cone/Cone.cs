@@ -73,7 +73,7 @@ namespace WalkerGlobe2.Scene
             {
                 cardinalAxis = new Vector3D(0, 0, 1);
             }
-            return v.Cross(cardinalAxis);
+            return v.Cross(cardinalAxis).Normalize();
         }
 
         public Cone(Context context, int slices)

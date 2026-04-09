@@ -24,8 +24,8 @@ namespace WalkerGlobe2.Scene
             _context = context;
 
             ShaderProgram sp = Device.CreateShaderProgram(
-                EmbeddedResources.GetText("WalkerGlobe.Scene.Renderables.Plane.Shaders.FillVS.glsl"),
-                EmbeddedResources.GetText("WalkerGlobe.Scene.Renderables.Plane.Shaders.FillFS.glsl"));
+                EmbeddedResources.GetText("WalkerGlobe.Scene.Renderables.Plane.Shaders.LitVS.glsl"),
+                EmbeddedResources.GetText("WalkerGlobe.Scene.Renderables.Plane.Shaders.LitFS.glsl"));
             _colorUniform = (Uniform<Vector3F>)sp.Uniforms["u_color"];
             _alphaUniform = (Uniform<float>)sp.Uniforms["u_alpha"];
             ((Uniform<bool>)sp.Uniforms["u_logarithmicDepth"]).Value = false;
@@ -41,7 +41,7 @@ namespace WalkerGlobe2.Scene
 
             Color = Color.LightBlue;
             HighlightColor = Color.LightGreen;
-            _alphaUniform.Value = 0.5f;
+            _alphaUniform.Value = 0.85f;
 
             BuildMeshes(positions, scales, highlightMask);
         }
