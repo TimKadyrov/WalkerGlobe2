@@ -131,4 +131,4 @@ globeControl.GlobeReady += () =>
 
 Apache License 2.0. See [LICENSE](LICENSE) for details.
 
-Derived from [OpenGlobe](https://github.com/pjcozzi/OpenGlobe) by Patrick Cozzi and Deron Ohlarik (MIT License). See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Derived from [OpenGlobe](https://github.com/virtualglobebook/OpenGlobe) by Patrick Cozzi and Deron Ohlarik (MIT License). See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
