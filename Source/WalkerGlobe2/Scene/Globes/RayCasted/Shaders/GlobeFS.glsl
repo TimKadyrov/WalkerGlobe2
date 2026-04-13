@@ -116,8 +116,8 @@ void main()
             vec3 sunDir = normalize((og_inverseModelMatrix * vec4(og_sunPosition, 0.0)).xyz);
             float sunDot = dot(sunDir, normal);
 
-            // Blend zone: smooth transition over ~6 degrees at terminator
-            float blend = clamp((sunDot + 0.1) * 5.0, 0.0, 1.0);
+            // Blend zone: wide smooth transition at terminator (Google Earth style)
+            float blend = smoothstep(-0.3, 0.2, sunDot);
 
             vec3 nightColor = texture(og_texture1, texCoord).rgb;
             fragmentColor = mix(nightColor, dayColor, blend);

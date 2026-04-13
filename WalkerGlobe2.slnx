@@ -1,4 +1,7 @@
 <Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+  </Configurations>
   <Folder Name="/Source/">
     <Project Path="Source/WalkerGlobe2.WpfSample/WalkerGlobe2.WpfSample.csproj" />
     <Project Path="Source/WalkerGlobe2/WalkerGlobe2.csproj" />

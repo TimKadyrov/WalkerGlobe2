@@ -20,8 +20,8 @@ namespace WalkerGlobe2.Scene
             Vector3D r = shape.Radii;
             _globeRadiiSquared.Value = new Vector3F((float)(r.X * r.X), (float)(r.Y * r.Y), (float)(r.Z * r.Z));
 
-            // Atmosphere extends ~2% above the surface
-            double outerRadius = shape.MaximumRadius * 1.025;
+            // Atmosphere extends ~1.5% above the surface (tight band like Google Earth)
+            double outerRadius = shape.MaximumRadius * 1.015;
             _atmosphereRadiusSquared.Value = (float)(outerRadius * outerRadius);
 
             _renderState = new RenderState();
