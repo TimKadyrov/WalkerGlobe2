@@ -17,18 +17,22 @@ namespace WalkerGlobe2.Scene
 {
     public class PolylineShape2 : IRenderable, IDisposable
     {
+        private bool _segmentPairs;
+
         public PolylineShape2(
-            List<Vector3D> points, 
-            Context context, 
-            Ellipsoid globeShape, 
-            ShapefileAppearance appearance)
+            List<Vector3D> points,
+            Context context,
+            Ellipsoid globeShape,
+            ShapefileAppearance appearance,
+            bool segmentPairs = false)
         {
             Verify.ThrowIfNull(context);
             Verify.ThrowIfNull(globeShape);
             Verify.ThrowIfNull(appearance);
-            
+
             _polyline = new OutlinedPolylineTexture();
             _appearance = appearance;
+            _segmentPairs = segmentPairs;
 
             int positionsCount = points.Count;
             indices = new IndicesUnsignedInt(1);
@@ -43,11 +47,24 @@ namespace WalkerGlobe2.Scene
                 colorAttribute.AddColor(appearance.PolylineColor);
                 outlineColorAttribute.AddColor(appearance.PolylineOutlineColor);
                 rotanglez.Values.Add(0f);
+            }
 
-                if (i != 0)
+            if (segmentPairs)
+            {
+                // Independent segment pairs: (0,1), (2,3), (4,5), ...
+                for (int i = 0; i + 1 < positionsCount; i += 2)
                 {
-                    indices.Values.Add((uint)positionAttribute.Values.Count - 2);
-                    indices.Values.Add((uint)positionAttribute.Values.Count - 1);
+                    indices.Values.Add((uint)i);
+                    indices.Values.Add((uint)(i + 1));
+                }
+            }
+            else
+            {
+                // Continuous polyline: (0,1), (1,2), (2,3), ...
+                for (int i = 1; i < positionsCount; i++)
+                {
+                    indices.Values.Add((uint)(i - 1));
+                    indices.Values.Add((uint)i);
                 }
             }
             Mesh mesh = new Mesh();

@@ -14,8 +14,8 @@ namespace WalkerGlobe2.Api
         /// <summary>Set simulation time (updates Earth rotation).</summary>
         void SetTime(double timeSeconds);
 
-        /// <summary>Update satellite positions (ECI, km). Supports per-satellite scale and highlighting.</summary>
-        void UpdateSatellites(Vector3D[] positionsKm, float[] scales = null, bool[] highlighted = null);
+        /// <summary>Update satellite positions (ECI, km). Key allows multiple independent groups.</summary>
+        void UpdateSatellites(string key, Vector3D[] positionsKm, Color color, float[] scales = null, bool[] highlighted = null);
 
         /// <summary>Add/update an ECEF polyline (e.g. coverage footprint on ground). Coordinates in radians.</summary>
         void SetGroundPolyline(string key, Vector2D[] latLonRad, Color color);
@@ -37,10 +37,6 @@ namespace WalkerGlobe2.Api
 
         /// <summary>Remove a renderable by key.</summary>
         void Remove(string key);
-
-        /// <summary>Set satellite marker colors.</summary>
-        Color SatelliteColor { get; set; }
-        Color SatelliteHighlightColor { get; set; }
 
         /// <summary>Toggle lat/lon grid overlay.</summary>
         bool ShowGrid { get; set; }

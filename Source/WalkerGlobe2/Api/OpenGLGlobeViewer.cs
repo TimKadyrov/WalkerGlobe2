@@ -12,9 +12,6 @@ namespace WalkerGlobe2.Api
     public class OpenGLGlobeViewer : IGlobeViewer
     {
         private readonly WalkerGlobe2.WalkerGlobe _globe;
-        private Color _satColor = Color.LightGray;
-        private Color _satHighlightColor = Color.Yellow;
-
         public OpenGLGlobeViewer(string textureFile = null)
         {
             if (textureFile == null)
@@ -30,14 +27,13 @@ namespace WalkerGlobe2.Api
             _globe.SetTime((int)timeSeconds);
         }
 
-        public void UpdateSatellites(Vector3D[] positionsKm, float[] scales = null, bool[] highlighted = null)
+        public void UpdateSatellites(string key, Vector3D[] positionsKm, Color color, float[] scales = null, bool[] highlighted = null)
         {
-            // Convert km to meters (WalkerGlobe uses meters internally via Wgs84 in meters)
             var positionsM = new Vector3D[positionsKm.Length];
             for (int i = 0; i < positionsKm.Length; i++)
                 positionsM[i] = positionsKm[i] * 1000.0;
 
-            _globe.AddSatelliteMarkers(positionsM, "satellites", _satColor, scales, highlighted);
+            _globe.AddSatelliteMarkers(positionsM, key, color, scales, highlighted);
         }
 
         public void UpdateGroundStations(string key, Vector3D[] positionsKm, Color color, float[] scales = null, float alpha = 0.5f)
@@ -95,18 +91,6 @@ namespace WalkerGlobe2.Api
         public void Remove(string key)
         {
             _globe.RemoveShape(key);
-        }
-
-        public Color SatelliteColor
-        {
-            get => _satColor;
-            set => _satColor = value;
-        }
-
-        public Color SatelliteHighlightColor
-        {
-            get => _satHighlightColor;
-            set => _satHighlightColor = value;
         }
 
         public bool ShowGrid { get; set; }

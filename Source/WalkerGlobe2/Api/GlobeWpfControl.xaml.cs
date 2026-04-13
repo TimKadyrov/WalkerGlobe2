@@ -73,6 +73,7 @@ namespace WalkerGlobe2.Api
         private Bitmap _preloadedTexture;
         private volatile bool _textureReady;
 
+
         private System.Windows.Forms.Panel _glPanel;
         private IntPtr _hdc;
         private IntPtr _hglrc;
@@ -305,14 +306,14 @@ namespace WalkerGlobe2.Api
             _globe.SetTime((int)timeSeconds);
         }
 
-        public void UpdateSatellites(Vector3D[] positionsKm, System.Drawing.Color color,
+        public void UpdateSatellites(string key, Vector3D[] positionsKm, System.Drawing.Color color,
             float[] scales = null, bool[] highlighted = null)
         {
             if (!_initialized) return;
             var positionsM = new Vector3D[positionsKm.Length];
             for (int i = 0; i < positionsKm.Length; i++)
                 positionsM[i] = positionsKm[i] * 1000.0;
-            _globe.AddSatelliteMarkers(positionsM, "satellites", color, scales, highlighted);
+            _globe.AddSatelliteMarkers(positionsM, key, color, scales, highlighted);
         }
 
         public void UpdateGroundStations(string key, Vector3D[] positionsKm, System.Drawing.Color color,
@@ -339,6 +340,25 @@ namespace WalkerGlobe2.Api
         {
             if (!_initialized) return;
             _globe.AddPolygonShapeCollection(latLonRad, key, lineColor, fillColor);
+        }
+
+        public void SetLineSegments(string key, Vector3D[] endpointsKm, System.Drawing.Color color, bool ecef = false)
+        {
+            if (!_initialized) return;
+            var points = new System.Collections.Generic.List<Vector3D>();
+            foreach (var p in endpointsKm)
+                points.Add(p * 1000.0);
+            _globe.AddLineSegments(points, key, color, ecef);
+        }
+
+        public void SetSphereMarkers(string key, Vector3D[] positionsKm, System.Drawing.Color color,
+            double radiusKm = 120.0, float alpha = 0.7f)
+        {
+            if (!_initialized) return;
+            var positionsM = new Vector3D[positionsKm.Length];
+            for (int i = 0; i < positionsKm.Length; i++)
+                positionsM[i] = positionsKm[i] * 1000.0;
+            _globe.AddSphereMarkers(positionsM, key, color, radiusKm * 1000.0, alpha);
         }
 
         public void RemoveShape(string key)

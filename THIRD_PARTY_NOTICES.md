@@ -2,7 +2,7 @@
 
 ### OpenGlobe
 
-This project is derived from [OpenGlobe](https://github.com/pjcozzi/OpenGlobe),
+This project is derived from [OpenGlobe](https://github.com/virtualglobebook/OpenGlobe),
 originally created by Patrick Cozzi and Deron Ohlarik.
 
 Licensed under the MIT License:

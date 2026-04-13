@@ -135,7 +135,7 @@ namespace WalkerGlobe2.WpfSample
 
             // All positions are ECI — satellites from orbital propagation, ground stations rotated from ECEF
             if (chkSatellites.IsChecked == true)
-                globeControl.UpdateSatellites(_satPositions, System.Drawing.Color.LightBlue, scales, _satHighlight);
+                globeControl.UpdateSatellites("satellites", _satPositions, System.Drawing.Color.LightBlue, scales, _satHighlight);
 
             if (chkGroundStations.IsChecked == true)
             {

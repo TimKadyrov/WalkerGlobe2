@@ -308,7 +308,8 @@ namespace WalkerGlobe2
                         ((IDisposable)shape).Dispose();
 
                     var lines = new PolylineShape2(endpoints, _context, _globe.Shape,
-                        new ShapefileAppearance { PolylineColor = color, PolylineOutlineColor = color, PolylineWidth = 1, PolylineOutlineWidth = 1 });
+                        new ShapefileAppearance { PolylineColor = color, PolylineOutlineColor = color, PolylineWidth = 1, PolylineOutlineWidth = 1 },
+                        segmentPairs: true);
                     if (ecef) _ecefKeys.Add(key);
                     if (_mutuableshapes.ContainsKey(key))
                         _mutuableshapes[key] = lines;
